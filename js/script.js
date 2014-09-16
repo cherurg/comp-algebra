@@ -31,9 +31,9 @@ function getGrammar(type) {
                 [')', '(\\))', 'CLOSE'],
                 ['^', '(\\^)', 'POWER'],
                 ['/', '(/)', 'DIVISION'],
-                ['-', '(-)', 'MINUS'],
+                ['-', '(-)', 'MINUS']/*,
                 ['_', '(_)', 'UNDERSCORE'],
-                ['int', '(int)', 'INTEGRAL']
+                ['int', '(int)', 'INTEGRAL']*/
             ])),
 
             getSymbols: function () {
@@ -90,7 +90,7 @@ function getGrammar(type) {
                         o.token = self.symbols[index].tokenName;
                     } else if (/^([a-z]|[A-Z])+(\d)*$/.test(exp)) {
                         o.token = 'VAR';
-                    } else if (parseFloat(exp).toString() === exp) {
+                    } else if (parseFloat(exp) == exp) {
                         o.token = 'NUMBER';
                     } else {
                         o.token = 'UNKNOWN';
@@ -108,7 +108,7 @@ function getGrammar(type) {
                         return;
                     }
 
-                    if (i == 0 || arr[i - 1].type == 'operator') {
+                    if (i == 0 || arr[i - 1].token == 'OPEN') {
                         el.sign = true;
                         return;
                     }
@@ -212,7 +212,7 @@ function getTreeFromPolishNotation(notation) {
     return tree;
 }
 
-function go (string) {
+function go(string) {
     'use strict';
     var g,
         exp,
@@ -248,7 +248,7 @@ function go (string) {
         while (exp.length > 0) {
             sym = exp.shift();
             if (sym.token == "UNKNOWN") {
-                console.error("Неизвестный токен");
+                throw "Неизвестный токен";
                 break;
             }
 
@@ -265,7 +265,7 @@ function go (string) {
                     output.push(stack.shift());
 
                     if (stack.length == 0) {
-                        console.error("Неверная последовательность! Не обнаружена '('");
+                        throw "Неверная последовательность! Не обнаружена '('";
                         break outer;
                     }
                 }
@@ -296,4 +296,11 @@ function go (string) {
     draw(tree, "#tree");
 }
 
-$("#start").on("click", function () {go($("#query").val())});
+$("#start").on("click", function () {
+    try {
+        go($("#query").val())
+    } catch (err) {
+        alert("Ошибка! Больше информации в консоли.");
+        console.log(err);
+    }
+});
