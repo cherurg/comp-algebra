@@ -102,6 +102,25 @@ function getGrammar(type) {
 
                     return o;
                 });
+
+                this.expression.forEach(function (el, i, arr) {
+                    if (el.token != 'MINUS' && el.token != 'PLUS') {
+                        return;
+                    }
+
+                    if (i == 0 || arr[i - 1].type == 'operator') {
+                        el.sign = true;
+                        return;
+                    }
+                });
+
+                this.expression
+                    .removeElementIf(function (el, i, arr) {
+                        if (el.sign) {
+                            arr[i + 1].value = el.value + arr[i + 1].value;
+                            return true;
+                        }
+                    });
             }
         };
     }
